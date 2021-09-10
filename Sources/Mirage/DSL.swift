@@ -11,7 +11,7 @@ public struct Action {
 
 @resultBuilder
 public struct ActionsBuilder {
-    static func buildBlock(_ actions: Action...) -> [Action] { 
+    public static func buildBlock(_ actions: Action...) -> [Action] { 
         actions
     }
 }
@@ -23,8 +23,8 @@ public struct Route {
 }
 
 @resultBuilder
-struct RoutesBuilder {
-    static func buildBlock(_ routes: RouteConvertible...) -> [Route] { 
+public struct RoutesBuilder {
+    public static func buildBlock(_ routes: RouteConvertible...) -> [Route] { 
         routes.flatMap { $0.asRoutes() }
     }
 }
@@ -34,28 +34,28 @@ public struct RouteGroup {
     var routes: [Route] 
 }
 
-protocol RouteConvertible {
+public protocol RouteConvertible {
     func asRoutes() -> [Route]
 }
 
 extension Route: RouteConvertible {
-    func asRoutes() -> [Route] { [self] }
-    func getPath() -> String { (self.pathPrefix ?? "") + self.path }
+    public func asRoutes() -> [Route] { [self] }
+    public func getPath() -> String { (self.pathPrefix ?? "") + self.path }
 }
 
 extension RouteGroup: RouteConvertible {
-    func asRoutes() -> [Route] {
+    public func asRoutes() -> [Route] {
         self.routes.map {
             return Route(path: $0.path, pathPrefix: self.pathPrefix, actions: $0.actions)
         }
     }
 }
 
-func makeRoutes(@RoutesBuilder _ content: () -> [Route]) -> [Route] {
+public func makeRoutes(@RoutesBuilder _ content: () -> [Route]) -> [Route] {
     content()
 }
 
-func pathPrefix(_ pathPrefix: String, @RoutesBuilder _ builder: () -> [Route]) -> RouteGroup {
+public func pathPrefix(_ pathPrefix: String, @RoutesBuilder _ builder: () -> [Route]) -> RouteGroup {
     return .init(pathPrefix: pathPrefix, routes: builder())
 }
 

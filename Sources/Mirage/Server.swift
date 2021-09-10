@@ -1,12 +1,14 @@
 import NIOCore
 import NIOPosix
 import NIOHTTP1
+import Logging
 
 public class ServerHandler: ChannelInboundHandler {
     public typealias InboundIn = HTTPServerRequestPart
     public typealias OutboundOut = HTTPServerResponsePart
 
     private var routes: [Route]
+    private let logger = Logger(label: "MirageServerHandler")
 
     public init(routes: [Route]) {
         self.routes = routes
@@ -16,6 +18,7 @@ public class ServerHandler: ChannelInboundHandler {
         let req = self.unwrapInboundIn(data)
         
         if case let .head(req) = req {
+            logger.info("\(req.method.rawValue) \(req.uri) --- \(req.headers.description)")
             let route = routes.filter { $0.getPath() == req.uri }.first
             guard let route = route else {
                 self.serialize(respond("Not Found", status: .notFound), context: context)
@@ -54,7 +57,9 @@ func childChannelInitializer(routes: [Route], channel: Channel) -> EventLoopFutu
     }
 }
 
-func bootServer(_ routes: [Route], host: String, port: Int) throws {
+public func bootServer(_ routes: [Route], host: String, port: Int) throws {
+    let logger = Logger(label: "MirageServer")
+
     let group = MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount)
     let socketBootstrap = ServerBootstrap(group: group)
                             .serverChannelOption(ChannelOptions.backlog, value: 256)
@@ -72,9 +77,9 @@ func bootServer(_ routes: [Route], host: String, port: Int) throws {
         return try socketBootstrap.bind(host: host, port: port).wait()
     }()
 
-    print("Server started")
+    logger.info("Server started!")
 
     try channel.closeFuture.wait()
 
-    print("Server closed.")
+    logger.info("Server closed")
 }

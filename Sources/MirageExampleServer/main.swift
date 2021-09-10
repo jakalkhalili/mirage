@@ -1,3 +1,5 @@
+import Mirage
+
 let routes = makeRoutes {
     pathPrefix("/api") {
         path("/ping") {

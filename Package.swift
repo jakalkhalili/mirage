@@ -10,6 +10,9 @@ let package = Package(
         .library(
             name: "Mirage",
             targets: ["Mirage"]),
+        .executable(
+            name: "MirageExampleServer", 
+            targets: ["MirageExampleServer"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -26,6 +29,11 @@ let package = Package(
                 .product(name: "NIO", package: "swift-nio"),
                 .product(name: "NIOHTTP1", package: "swift-nio"),
                 .product(name: "Logging", package: "swift-log")
+            ]),
+        .target(
+            name: "MirageExampleServer",
+            dependencies: [
+                "Mirage"
             ]),
         .testTarget(
             name: "MirageTests",
