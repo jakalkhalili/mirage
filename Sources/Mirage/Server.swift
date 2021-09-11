@@ -57,7 +57,7 @@ func childChannelInitializer(routes: [Route], channel: Channel) -> EventLoopFutu
     }
 }
 
-public func bootServer(_ routes: [Route], host: String, port: Int) throws {
+public func bootServer(_ routes: [Route], host: String, port: Int, wait: Bool = true) throws {
     let logger = Logger(label: "MirageServer")
 
     let group = MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount)
@@ -78,8 +78,11 @@ public func bootServer(_ routes: [Route], host: String, port: Int) throws {
     }()
 
     logger.info("Server started!")
-
-    try channel.closeFuture.wait()
+    
+    // This function should be redesigned without the wait variable
+    if wait {
+        try channel.closeFuture.wait()
+    }
 
     logger.info("Server closed")
 }
